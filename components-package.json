@@ -1,0 +1,37 @@
+{
+  "name": "vue-app-layout",
+  "version": "1.0.0",
+  "description": "A responsive and customizable layout component for Vue 3 with Element Plus",
+  "main": "src/components/index.js",
+  "keywords": [
+    "vue",
+    "vue3",
+    "element-plus",
+    "layout",
+    "sidebar",
+    "responsive",
+    "ui-component"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "peerDependencies": {
+    "vue": "^3.0.0",
+    "element-plus": "^2.0.0",
+    "@element-plus/icons-vue": "^2.0.0"
+  },
+  "files": [
+    "src/components/AppLayout.vue",
+    "src/components/Sidebar.vue",
+    "src/components/AppLayoutExample.vue",
+    "src/components/index.js",
+    "AppLayout-README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/vue-app-layout.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/vue-app-layout/issues"
+  },
+  "homepage": "https://github.com/your-username/vue-app-layout#readme"
+} 

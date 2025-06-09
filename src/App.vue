@@ -1,35 +1,63 @@
 <script setup>
-import FroalaEditor from './components/FroalaEditor.vue';
-import { ref } from 'vue';
+import AppLayout from './components/AppLayout.vue';
 
-const recieveContent = ref('');
+// 菜单配置
+const menuItems = [
+  {
+    key: 'editor',
+    title: '编辑器',
+    icon: 'Edit',
+    route: '/editor'
+  },
+  {
+    key: 'documents',
+    title: '文档管理',
+    icon: 'Document',
+    route: '/documents'
+  },
+  {
+    key: 'settings',
+    title: '设置',
+    icon: 'Setting',
+    route: '/settings'
+  },
+  {
+    key: 'help',
+    title: '帮助',
+    icon: 'QuestionFilled',
+    route: '/help'
+  }
+];
 
-const handleContentUpdate = (content) => {
-  recieveContent.value = content;
-}
+const handleMenuChange = (menuKey) => {
+  console.log('菜单切换到:', menuKey);
+};
 
+const handleCollapseChange = (collapsed) => {
+  console.log('侧边栏折叠状态:', collapsed);
+};
 </script>
 
 <template>
-  <div class="app">
-    <h1>Froala 编辑器示例</h1>
-    <FroalaEditor @update:modelValue="handleContentUpdate" :height="200" />
-    <div class="content" v-html="recieveContent">
-      
-    </div>
-  </div>
+  <AppLayout 
+    :menu-items="menuItems"
+    @menu-change="handleMenuChange"
+    @collapse-change="handleCollapseChange"
+  />
 </template>
 
 <style>
-.app {
-  max-width: 1440px;
-  margin: 0 auto;
-  padding: 20px;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-h1 {
-  text-align: center;
-  color: #2c3e50;
-  margin-bottom: 30px;
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 </style>
