@@ -9,24 +9,6 @@ const menuItems = [
     icon: 'Edit',
     route: '/editor'
   },
-  {
-    key: 'documents',
-    title: '文档管理',
-    icon: 'Document',
-    route: '/documents'
-  },
-  {
-    key: 'settings',
-    title: '设置',
-    icon: 'Setting',
-    route: '/settings'
-  },
-  {
-    key: 'help',
-    title: '帮助',
-    icon: 'QuestionFilled',
-    route: '/help'
-  }
 ];
 
 const handleMenuChange = (menuKey) => {

@@ -15,31 +15,79 @@
         </div>
       </div>
       
-      <!-- Element Plus Menu -->
-      <el-menu
-        :default-active="activeItem"
-        :collapse="isCollapsed"
-        class="sidebar-menu"
-        @select="handleMenuSelect"
-        background-color="#2c3e50"
-        text-color="#bdc3c7"
-        active-text-color="#ffffff"
-        :collapse-transition="true"
-        router
-      >
-        <el-menu-item 
-          v-for="item in menuItems" 
-          :key="item.key" 
-          :index="item.route || item.key"
+      <!-- 菜单滚动容器 -->
+      <div class="menu-container">
+        <!-- Element Plus Menu -->
+        <el-menu
+          :default-active="activeMenuItem"
+          :collapse="isCollapsed"
+          class="sidebar-menu"
+          @select="handleMenuSelect"
+          background-color="#2c3e50"
+          text-color="#bdc3c7"
+          active-text-color="#ffffff"
+          :collapse-transition="true"
+          router
+          unique-opened
         >
-          <el-icon>
-            <component :is="item.icon" />
-          </el-icon>
-          <template #title>
-            <span>{{ item.title }}</span>
+          <!-- 基础菜单项 -->
+          <el-menu-item 
+            v-for="item in baseMenuItems" 
+            :key="item.key" 
+            :index="item.route || item.key"
+          >
+            <el-icon>
+              <component :is="item.icon" />
+            </el-icon>
+            <template #title>
+              <span>{{ item.title }}</span>
+            </template>
+          </el-menu-item>
+
+          <!-- 分隔线 -->
+          <div class="menu-divider" v-if="permissionMenus.length > 0"></div>
+
+          <!-- 权限菜单项 -->
+          <template v-for="category in permissionMenus" :key="category.id">
+            <el-sub-menu 
+              v-if="category.children && category.children.length > 0"
+              :index="category.name"
+            >
+              <template #title>
+                <el-icon>
+                  <component :is="getCategoryIcon(category.name)" />
+                </el-icon>
+                <span>{{ category.show_name }}</span>
+              </template>
+              
+              <el-menu-item
+                v-for="subItem in getVisibleSubItems(category.children)"
+                :key="subItem.id"
+                :index="`/${subItem.name}`"
+              >
+                <el-icon>
+                  <component :is="getSubItemIcon(subItem.name)" />
+                </el-icon>
+                <template #title>
+                  <span>{{ subItem.show_name }}</span>
+                </template>
+              </el-menu-item>
+            </el-sub-menu>
+            
+            <el-menu-item 
+              v-else
+              :index="`/${category.name}`"
+            >
+              <el-icon>
+                <component :is="getCategoryIcon(category.name)" />
+              </el-icon>
+              <template #title>
+                <span>{{ category.show_name }}</span>
+              </template>
+            </el-menu-item>
           </template>
-        </el-menu-item>
-      </el-menu>
+        </el-menu>
+      </div>
 
       <div class="sidebar-footer" v-if="showUserInfo">
         <div class="user-info" :class="{ collapsed: isCollapsed }">
@@ -54,7 +102,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watch } from 'vue';
+import { ref, onMounted, onUnmounted, watch, computed } from 'vue';
+import { useRoute } from 'vue-router';
+import { permissionMenus } from '../router/index.js';
 import { 
   Edit, 
   Document, 
@@ -62,7 +112,20 @@ import {
   QuestionFilled, 
   User,
   Expand,
-  Fold
+  Fold,
+  TrendCharts,
+  FolderOpened,
+  Money,
+  Lock,
+  Operation,
+  DocumentChecked,
+  PictureFilled,
+  Tools,
+  Platform,
+  VideoCamera,
+  List,
+  DataAnalysis,
+  Management
 } from '@element-plus/icons-vue';
 
 // Props
@@ -70,35 +133,6 @@ const props = defineProps({
   title: {
     type: String,
     default: '导航菜单'
-  },
-  menuItems: {
-    type: Array,
-    default: () => [
-      {
-        key: 'editor',
-        title: '编辑器',
-        icon: 'Edit'
-      },
-      {
-        key: 'documents',
-        title: '文档管理',
-        icon: 'Document'
-      },
-      {
-        key: 'settings',
-        title: '设置',
-        icon: 'Setting'
-      },
-      {
-        key: 'help',
-        title: '帮助',
-        icon: 'QuestionFilled'
-      }
-    ]
-  },
-  activeItem: {
-    type: String,
-    default: 'editor'
   },
   showUserInfo: {
     type: Boolean,
@@ -119,6 +153,57 @@ const emit = defineEmits(['menu-change', 'collapse-change']);
 
 // 响应式数据
 const isCollapsed = ref(false);
+const route = useRoute();
+
+// 基础菜单项
+const baseMenuItems = ref([
+  {
+    key: 'editor',
+    title: '编辑器',
+    icon: 'Edit',
+    route: '/editor'
+  }
+]);
+
+// 计算属性
+const activeMenuItem = computed(() => {
+  return route.path;
+});
+
+// 权限菜单处理方法
+const getCategoryIcon = (name) => {
+  const iconMap = {
+    'market': TrendCharts,
+    'project': FolderOpened,
+    'finance': Money,
+    'security': Lock,
+    'management': Management,
+    'operations': Operation,
+    'compliance': DocumentChecked,
+    'ui': PictureFilled,
+    'test': Tools,
+    'middle_platform': Platform,
+    'live': VideoCamera
+  };
+  return iconMap[name] || Document;
+};
+
+const getSubItemIcon = (name) => {
+  if (name.includes('/list')) return List;
+  if (name.includes('/data')) return DataAnalysis;
+  if (name.includes('/add')) return Edit;
+  if (name.includes('/edit')) return Setting;
+  if (name.includes('/delete')) return Document;
+  return Document;
+};
+
+const getVisibleSubItems = (children) => {
+  // 只显示 list 页面，其他操作页面通过按钮访问
+  return children.filter(item => 
+    item.name.includes('/list') || 
+    item.children.length === 0
+  );
+};
 
 // 方法
 const toggleCollapse = () => {
@@ -156,9 +241,9 @@ const handleResize = () => {
   }, 150);
 };
 
-// 监听 activeItem prop 变化
-watch(() => props.activeItem, (newValue) => {
-  // 可以在这里添加额外的逻辑
+// 监听路由变化
+watch(() => route.path, (newPath) => {
+  console.log('路由变化:', newPath);
 }, { immediate: true });
 
 // 初始化
@@ -202,6 +287,7 @@ defineExpose({
   flex-direction: column;
   transition: all 0.3s ease;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden; /* 防止整个侧边栏滚动 */
 }
 
 /* 折叠状态 */
@@ -217,6 +303,7 @@ defineExpose({
   justify-content: space-between;
   align-items: center;
   min-height: 72px;
+  flex-shrink: 0; /* 防止头部被压缩 */
 }
 
 .sidebar.collapsed .sidebar-header {
@@ -262,11 +349,44 @@ defineExpose({
   background-color: #34495e;
 }
 
+/* 菜单容器 - 可滚动区域 */
+.menu-container {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* 自定义滚动条样式 */
+.menu-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.menu-container::-webkit-scrollbar-track {
+  background: #34495e;
+  border-radius: 3px;
+}
+
+.menu-container::-webkit-scrollbar-thumb {
+  background: #5a6c7d;
+  border-radius: 3px;
+  transition: background 0.3s;
+}
+
+.menu-container::-webkit-scrollbar-thumb:hover {
+  background: #7f8c8d;
+}
+
+/* 折叠状态下隐藏滚动条 */
+.sidebar.collapsed .menu-container::-webkit-scrollbar {
+  width: 0px;
+}
+
 /* Element Plus Menu 样式重写 */
 .sidebar-menu {
-  flex: 1;
   border: none !important;
   width: 100% !important;
+  background-color: transparent !important;
 }
 
 .sidebar-menu .el-menu-item {
@@ -336,10 +456,93 @@ defineExpose({
   width: 100% !important;
 }
 
+/* 菜单分隔线 */
+.menu-divider {
+  height: 1px;
+  background-color: #34495e;
+  margin: 10px 20px;
+  transition: margin 0.3s ease;
+}
+
+.sidebar.collapsed .menu-divider {
+  margin: 10px 12px;
+}
+
+/* 子菜单样式 */
+.sidebar-menu .el-sub-menu .el-sub-menu__title {
+  height: 56px !important;
+  line-height: 56px !important;
+  padding: 0 20px !important;
+  background-color: #2c3e50 !important;
+  color: #bdc3c7 !important;
+}
+
+.sidebar.collapsed .sidebar-menu .el-sub-menu .el-sub-menu__title {
+  padding: 0 !important;
+  justify-content: center !important;
+}
+
+.sidebar-menu .el-sub-menu .el-sub-menu__title:hover {
+  background-color: #34495e !important;
+  color: #ffffff !important;
+}
+
+.sidebar-menu .el-sub-menu.is-active .el-sub-menu__title {
+  background-color: #34495e !important;
+  color: #ffffff !important;
+}
+
+.sidebar-menu .el-sub-menu .el-sub-menu__title .el-icon {
+  margin-right: 12px !important;
+  font-size: 18px !important;
+  width: 24px !important;
+}
+
+.sidebar.collapsed .sidebar-menu .el-sub-menu .el-sub-menu__title .el-icon {
+  margin-right: 0 !important;
+}
+
+/* 子菜单项样式 */
+.sidebar-menu .el-sub-menu .el-menu-item {
+  height: 48px !important;
+  line-height: 48px !important;
+  padding-left: 60px !important;
+  background-color: #34495e !important;
+}
+
+.sidebar.collapsed .sidebar-menu .el-sub-menu .el-menu-item {
+  padding-left: 20px !important;
+}
+
+.sidebar-menu .el-sub-menu .el-menu-item:hover {
+  background-color: #3a5270 !important;
+}
+
+.sidebar-menu .el-sub-menu .el-menu-item.is-active {
+  background-color: #409eff !important;
+  border-right: 3px solid #ffffff !important;
+}
+
+.sidebar.collapsed .sidebar-menu .el-sub-menu .el-menu-item.is-active {
+  border-right: none !important;
+  border-left: 3px solid #ffffff !important;
+}
+
+.sidebar-menu .el-sub-menu .el-menu-item .el-icon {
+  margin-right: 8px !important;
+  font-size: 16px !important;
+  width: 20px !important;
+}
+
+.sidebar.collapsed .sidebar-menu .el-sub-menu .el-menu-item .el-icon {
+  margin-right: 0 !important;
+}
+
 /* 侧边栏底部 */
 .sidebar-footer {
   padding: 20px;
   border-top: 1px solid #34495e;
+  flex-shrink: 0; /* 防止底部被压缩 */
 }
 
 .sidebar.collapsed .sidebar-footer {
@@ -436,6 +639,49 @@ defineExpose({
     padding: 6px;
     min-width: 28px;
     min-height: 28px;
+  }
+  
+  /* 手机端滚动条优化 */
+  .menu-container {
+    /* 在移动设备上使用更细的滚动条 */
+    scrollbar-width: thin;
+  }
+  
+  .menu-container::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  /* 手机端分隔线优化 */
+  .menu-divider {
+    margin: 8px 15px;
+  }
+  
+  .sidebar.collapsed .menu-divider {
+    margin: 8px 10px;
+  }
+}
+
+/* 平板端样式优化 */
+@media (max-width: 767px) and (min-width: 481px) {
+  .menu-container::-webkit-scrollbar {
+    width: 5px;
+  }
+}
+
+/* 触摸设备滚动优化 */
+@media (hover: none) and (pointer: coarse) {
+  .menu-container {
+    /* 为触摸设备优化滚动 */
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+  
+  .menu-container::-webkit-scrollbar {
+    width: 3px;
+  }
+  
+  .menu-container::-webkit-scrollbar-thumb {
+    background: rgba(95, 108, 125, 0.6);
   }
 }
 </style> 
