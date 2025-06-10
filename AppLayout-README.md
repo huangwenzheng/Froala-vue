@@ -41,7 +41,6 @@ src/
 │   └── Sidebar.vue        # 侧边栏组件
 ├── views/                 # 页面组件
 │   ├── EditorView.vue     # 编辑器页面
-│   ├── DocumentsView.vue  # 文档管理页面
 │   ├── SettingsView.vue   # 设置页面
 │   ├── HelpView.vue       # 帮助页面
 │   └── NotFoundView.vue   # 404页面
@@ -92,24 +91,6 @@ const routes = [
     name: 'Editor',
     component: () => import('../views/EditorView.vue'),
     meta: { title: '编辑器', icon: 'Edit' }
-  },
-  {
-    path: '/documents',
-    name: 'Documents', 
-    component: () => import('../views/DocumentsView.vue'),
-    meta: { title: '文档', icon: 'Document' }
-  },
-  {
-    path: '/settings',
-    name: 'Settings',
-    component: () => import('../views/SettingsView.vue'),
-    meta: { title: '设置', icon: 'Setting' }
-  },
-  {
-    path: '/help',
-    name: 'Help',
-    component: () => import('../views/HelpView.vue'),
-    meta: { title: '帮助', icon: 'QuestionFilled' }
   },
   {
     path: '/:pathMatch(.*)*',

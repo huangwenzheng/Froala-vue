@@ -2,6 +2,7 @@
 import AppLayout from './AppLayout.vue';
 import Sidebar from './Sidebar.vue';
 import AppLayoutExample from './AppLayoutExample.vue';
+import type { App } from 'vue';
 
 // 单独导出
 export { AppLayout, Sidebar, AppLayoutExample };
@@ -10,7 +11,7 @@ export { AppLayout, Sidebar, AppLayoutExample };
 export default AppLayout;
 
 // 安装函数 (可选，用于Vue插件安装)
-export const install = (app) => {
+export const install = (app: App) => {
   app.component('AppLayout', AppLayout);
   app.component('Sidebar', Sidebar);
   app.component('AppLayoutExample', AppLayoutExample);

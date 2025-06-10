@@ -1,23 +1,31 @@
-<script setup>
-import AppLayout from './components/AppLayout.vue';
+<script setup lang="ts">
+import AppLayout from './components/AppLayout.vue'
+
+// 定义菜单项类型
+interface MenuItem {
+  key: string
+  title: string
+  icon: string
+  route: string
+}
 
 // 菜单配置
-const menuItems = [
+const menuItems: MenuItem[] = [
   {
     key: 'editor',
     title: '编辑器',
     icon: 'Edit',
     route: '/editor'
   },
-];
+]
 
-const handleMenuChange = (menuKey) => {
-  console.log('菜单切换到:', menuKey);
-};
+const handleMenuChange = (menuKey: string) => {
+  console.log('菜单切换到:', menuKey)
+}
 
-const handleCollapseChange = (collapsed) => {
-  console.log('侧边栏折叠状态:', collapsed);
-};
+const handleCollapseChange = (collapsed: boolean) => {
+  console.log('侧边栏折叠状态:', collapsed)
+}
 </script>
 
 <template>

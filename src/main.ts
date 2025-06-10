@@ -4,7 +4,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 
 // 导入路由
-import router from './router'
+import router from './router/index.js'
 
 // 导入 Element Plus
 import ElementPlus from 'element-plus'
@@ -35,4 +35,4 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 }
 
 app.use(VueFroala)
-app.mount('#app')
+app.mount('#app') 

@@ -1,20 +1,20 @@
 <template>
   <div class="view-container">
-    <h1>Froala 编辑器示例</h1>
+    <h1 class="text-center">Froala 编辑器示例</h1>
     <FroalaEditor @update:modelValue="handleContentUpdate" :height="200" />
     <div class="content-preview" v-html="content"></div>
   </div>
 </template>
 
-<script setup>
-import FroalaEditor from '../components/FroalaEditor.vue';
-import { ref } from 'vue';
+<script setup lang="ts">
+import FroalaEditor from '../components/FroalaEditor.vue'
+import { ref } from 'vue'
 
-const content = ref('');
+const content = ref<string>('')
 
-const handleContentUpdate = (newContent) => {
-  content.value = newContent;
-};
+const handleContentUpdate = (newContent: string) => {
+  content.value = newContent
+}
 </script>
 
 <style scoped>
@@ -34,12 +34,46 @@ h1 {
 }
 
 .content-preview {
-  margin-top: 30px;
-  padding: 20px;
+  margin: 20px;
+  padding: 15px;
   border: 1px solid #e1e5e9;
   border-radius: 4px;
   background: #f8f9fa;
   min-height: 100px;
+  line-height: 1.6;
+  font-family: inherit;
+}
+
+/* 最基础的富文本样式支持 */
+.content-preview :deep(p) {
+  margin: 0 0 10px 0;
+}
+
+.content-preview :deep(h1, h2, h3, h4, h5, h6) {
+  margin: 1em 0 0.5em 0;
+  font-weight: bold;
+}
+
+.content-preview :deep(strong, b) {
+  font-weight: bold;
+}
+
+.content-preview :deep(em, i) {
+  font-style: italic;
+}
+
+.content-preview :deep(u) {
+  text-decoration: underline;
+}
+
+.content-preview :deep(ul, ol) {
+  margin: 1em 0;
+  padding-left: 2em;
+}
+
+.content-preview :deep(img) {
+  max-width: 100%;
+  height: auto;
 }
 
 /* 响应式设计 */

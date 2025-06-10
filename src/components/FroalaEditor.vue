@@ -13,8 +13,8 @@
     </div>
 </template>
 
-<script setup>
-import { ref, defineEmits } from 'vue'
+<script setup lang="ts">
+import { ref } from 'vue'
 
 const emit = defineEmits(['update:modelValue']);
 
@@ -27,10 +27,10 @@ const props = defineProps({
 
 const content = ref('')
 const editorLoaded = ref(false)
-const previewImage = ref(null)
+const previewImage = ref<string | null>(null)
 
 // 打开图片预览
-const openPreview = (imageSrc) => {
+const openPreview = (imageSrc: string) => {
     previewImage.value = imageSrc
 }
 
@@ -40,15 +40,15 @@ const closePreview = () => {
 }
 
 // 为编辑器中的图片添加点击事件
-const addImageClickEvents = (editor) => {
+const addImageClickEvents = (editor: FroalaEditorInstance) => {
     setTimeout(() => {
         const editorElement = editor.el
         if (editorElement) {
             // 为所有图片添加点击事件
             const images = editorElement.querySelectorAll('img')
-            images.forEach(img => {
+            images.forEach((img: HTMLImageElement) => {
                 img.style.cursor = 'pointer'
-                img.addEventListener('dblclick', (e) => {
+                img.addEventListener('dblclick', (e: Event) => {
                     e.preventDefault()
                     openPreview(img.src)
                 })
@@ -95,7 +95,7 @@ const config =ref({
         'imageLink', 'linkOpen', 'linkEdit', 'linkRemove', 
         'imageDisplay', 'imageStyle', 'imageAlt', 'imageSize'
     ],
-    toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'textColor', 'backgroundColor', 'clearFormatting','alignLeft', 'alignCenter', 'alignRight', 'alignFull','paragraphFormat', 'formatOL', 'formatUL', 'insertHR','insertLink', 'insertImage', 'insertTable','insertVideo', 'insertAudio','undo', 'redo', 'fullscreen', 'html'],
+    toolbarButtons: ['undo', 'redo','bold', 'italic', 'underline', 'fontSize', 'textColor', 'backgroundColor', 'clearFormatting','alignLeft', 'alignCenter', 'alignRight', 'alignFull','paragraphFormat', 'formatOL', 'formatUL', 'insertHR','insertLink', 'insertImage', 'insertTable', 'insertAudio', 'fullscreen', 'html'],
     // toolbarButtons: {
 
     //     'moreText': {
@@ -116,12 +116,12 @@ const config =ref({
     // },
 
     events: {
-        'initialized': function () {
+        'initialized': function (this: FroalaEditorInstance) {
             console.log('✅ 配置中的 initialized 事件触发')
             editorLoaded.value = true
             addImageClickEvents(this)
         },
-        'contentChanged': function () {
+        'contentChanged': function (this: FroalaEditorInstance) {
             console.log('✅ 配置中的内容变化事件触发')
             const currentContent = this.html.get()
             emit('update:modelValue', currentContent)
@@ -129,28 +129,28 @@ const config =ref({
             // 内容变化时重新添加图片点击事件
             addImageClickEvents(this)
         },
-        'keyup': function () {
+        'keyup': function (this: FroalaEditorInstance) {
             console.log('✅ 按键事件触发')
             const currentContent = this.html.get()
             emit('update:modelValue', currentContent)
         },
         // 图片上传相关事件
-        'image.beforeUpload': function (images) {
+        'image.beforeUpload': function (images: FileList) {
             console.log('准备上传图片：', images)
             // 可以在这里添加上传前的验证逻辑
             return true // 返回false可以阻止上传
         },
-        'image.uploaded': function (response) {
+        'image.uploaded': function (this: FroalaEditorInstance, response: any) {
             console.log('图片上传成功：', response)
             // 图片上传后添加点击事件
             addImageClickEvents(this)
         },
-        'image.error': function (error, response) {
+        'image.error': function (error: any, response: any) {
             console.error('图片上传失败：', error, response)
             // 处理上传失败
             alert('图片上传失败，请重试')
         },
-        'image.replaced': function ($img, response) {
+        'image.replaced': function (this: FroalaEditorInstance, $img: any, response: any) {
             console.log('图片已替换：', $img, response)
             // 图片替换后添加点击事件
             addImageClickEvents(this)
@@ -158,7 +158,7 @@ const config =ref({
     }
 })
 
-const handleEditorInit = (editor) => {
+const handleEditorInit = (editor: FroalaEditorInstance) => {
     console.log('🎉 Vue 组件事件：编辑器已初始化', editor)
     editorLoaded.value = true
 

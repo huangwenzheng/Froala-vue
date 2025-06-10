@@ -1,14 +1,19 @@
-import { createRouter, createWebHistory } from 'vue-router';
-import { permissionMenus } from './permissions';
+import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
+import { permissionMenus, MenuItem } from './permissions.js'
 
-
+// 定义权限的类型
+interface Permission {
+  id: string
+  name: string
+  action: string
+}
 
 // 动态生成路由的工具函数
-const generateRoutes = (menuData) => {
-  const routes = []
+const generateRoutes = (menuData: MenuItem[]): RouteRecordRaw[] => {
+  const routes: RouteRecordRaw[] = []
   
   // 递归处理菜单数据
-  const processMenu = (menus, parentMenu = null) => {
+  const processMenu = (menus: MenuItem[], parentMenu: MenuItem | null = null) => {
     menus.forEach(menu => {
       const routePath = `/${menu.name}`
       
@@ -33,8 +38,8 @@ const generateRoutes = (menuData) => {
             menuId: menu.id,
             parentId: menu.parent_id,
             category: parentMenu ? parentMenu.show_name : '',
-            permissions: menu.children.map(child => ({
-              id: child.id,
+            permissions: menu.children.map((child: MenuItem): Permission => ({
+              id: child.id.toString(),
               name: child.show_name,
               action: child.name
             }))
@@ -54,7 +59,7 @@ const generateRoutes = (menuData) => {
 }
 
 // 根据类别获取图标
-const getIconByCategory = (name) => {
+const getIconByCategory = (name: string): string => {
   if (name.includes('market')) return 'TrendCharts'
   if (name.includes('project')) return 'FolderOpened'
   if (name.includes('finance')) return 'Money'
@@ -70,7 +75,7 @@ const getIconByCategory = (name) => {
 }
 
 // 基础路由
-const baseRoutes = [
+const baseRoutes: RouteRecordRaw[] = [
   {
     path: '/',
     redirect: '/editor'
@@ -87,7 +92,7 @@ const baseRoutes = [
 const dynamicRoutes = generateRoutes(permissionMenus)
 
 // 合并所有路由
-const routes = [
+const routes: RouteRecordRaw[] = [
   ...baseRoutes,
   ...dynamicRoutes,
   {
@@ -102,19 +107,19 @@ const router = createRouter({
   history: createWebHistory(),
   routes,
   // 路由切换时滚动到顶部
-  scrollBehavior(to, from, savedPosition) {
+  scrollBehavior(_to, _from, savedPosition) {
     if (savedPosition) {
-      return savedPosition;
+      return savedPosition
     } else {
-      return { top: 0 };
+      return { top: 0 }
     }
   }
-});
+})
 
 // 全局路由守卫
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _from, next) => {
   // 设置页面标题
-  document.title = to.meta.title ? `${to.meta.title} - 管理系统` : '管理系统';
+  document.title = to.meta.title ? `${to.meta.title} - 管理系统` : '管理系统'
   
   // 这里可以添加权限验证逻辑
   // if (to.meta.requiresAuth && !isAuthenticated()) {
@@ -123,17 +128,17 @@ router.beforeEach((to, from, next) => {
   //   next();
   // }
   
-  console.log('导航到:', to.path, '页面:', to.meta.title);
+  console.log('导航到:', to.path, '页面:', to.meta.title)
   
-  next();
-});
+  next()
+})
 
 // 全局后置钩子
 router.afterEach((to, from) => {
   // 路由切换完成后的逻辑
-  console.log(`路由切换: ${from.path} -> ${to.path}`);
-});
+  console.log(`路由切换: ${from.path} -> ${to.path}`)
+})
 
 // 导出权限菜单供组件使用
-export { permissionMenus };
-export default router; 
+export { permissionMenus }
+export default router 
